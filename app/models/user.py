@@ -3,6 +3,7 @@ from sqlalchemy import Column, ForeignKey, Integer, String, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.schema import CreateTable
 
+
 class User(Base):
     __tablename__ = 'users'
     __table_args__ = {'keep_existing': True}
@@ -13,5 +14,3 @@ class User(Base):
     age = Column(Integer)
     slug = Column(String, unique=True, index=True)
     tasks = relationship("Task", back_populates="user")
-
-print(CreateTable(User.__table__))
