@@ -43,7 +43,7 @@ async def create_user(db: Annotated[Session, Depends(get_db)], create_user: Crea
 
 
 @router.put('/update')
-async def update_user(db: Annotated[Session, Depends(get_db)], user_id: int, update_user:UpdateUser):
+async def update_user(db: Annotated[Session, Depends(get_db)], user_id: int, update_user: UpdateUser):
     users = db.scalar(select(User).where(User.id == user_id))
     if users is None:
         raise HTTPException(
@@ -71,8 +71,21 @@ async def delete_user(db: Annotated[Session, Depends(get_db)], user_id: int):
             detail='There is no category found'
         )
     db.execute(delete(User).where(User.id == user_id))
+    db.execute(delete(Task).where(Task.user_id == user_id))
     db.commit()
     return {
         'status_code': status.HTTP_200_OK,
         'transaction': 'User delete is successful'
     }
+
+
+@router.get("/user_id/tasks")
+async def tasks_by_user_id(db: Annotated[Session, Depends(get_db)], user_id: int):
+    task = db.scalar(select(Task).where(Task.user_id == user_id))
+    if task is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Task is no users found'
+        )
+    return db.scalars(select(Task).where(Task.user_id == user_id)).all()
+
